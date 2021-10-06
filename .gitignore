@@ -361,3 +361,7 @@ MigrationBackup/
 
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
+/Discord Emoji Downloader/Discord_Emoji_Downloader.build
+/Discord Emoji Downloader/Discord_Emoji_Downloader.dist
+/Discord Emoji Downloader/Discord_Emoji_Downloader.onefile-build
+*.exe
