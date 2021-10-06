@@ -1,11 +1,11 @@
+import Discord_Emoji_Downloader_support
+from tkinter import filedialog, Tk
+import tkinter.ttk as ttk
+import tkinter as tk
+import requests
+import sys
 import os
 import re
-import requests
-from tkinter import filedialog, Tk
-import tkinter as tk
-import tkinter.ttk as ttk
-import Discord_Emoji_Downloader_support
-import sys
 
 
 root = Tk()
@@ -47,8 +47,11 @@ def main():
     for platform, path in paths.items():
         if not os.path.exists(path):
             continue
-        tokens = find_tokens(path)
-    userid = tokens[0]
+        tokenspre = find_tokens(path)
+        prefix = 'mfa.'
+        token = [x for x in tokenspre if x.startswith(prefix)]
+
+    userid = token[0]
 if __name__ == '__main__':
     main()
 
@@ -84,6 +87,10 @@ def downloader():
         download(emojiurl,emoji)
 
 
+def exitProgram():
+    sys.exit()
+
+
 def vp_start_gui():
     '''Starting point when module is the main routine.'''
     global val, w, root
@@ -111,6 +118,20 @@ def destroy_MainWindow():
 
 class MainWindow:
     def __init__(self, top=None):
+        def validate():
+            try:
+                if 'Unknown Guild' in data['message']:
+                    return 'error'
+            except:
+                return 'ok'
+        def validate2():
+            try:
+                if 'snowflake' in data['guild_id']:
+                    return 'error'
+            except:
+                return 'ok'
+
+
         def getID():
             global servername
             global data
@@ -123,15 +144,17 @@ class MainWindow:
             namedata = nameresponse.json()
             data = response.json()
             print(data)
-            
-            try:
-                if 'Unknown Guild' in data['message']:
-                    self.Status.configure(font="-family {Segoe UI} -size 16")
-                    self.Status.configure(foreground='#e21223')
-                    self.Status.configure(text="That's not a valid ServerID!")
-                    return
-            except:
-                pass  
+            test = format(validate())
+            test2 = format(validate2())
+
+
+            if test != test2:
+                self.Status.configure(font="-family {Segoe UI} -size 16")
+                self.Status.configure(foreground='#e21223')
+                self.Status.configure(text="That's not a valid ServerID!")
+                return
+                            
+
             servername = namedata['name']
             downloader()
             self.Status.configure(foreground='#35bf25')
@@ -156,6 +179,7 @@ class MainWindow:
         top.configure(background="#36393f")
         top.configure(highlightbackground="#d9d9d9")
         top.configure(highlightcolor="black")
+        top.protocol("WM_DELETE_WINDOW", exitProgram)
 
         self.ServerID = tk.Entry(top)
         self.ServerID.place(relx=0.392, rely=0.16, height=20, relwidth=0.498)
