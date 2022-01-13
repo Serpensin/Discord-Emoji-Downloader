@@ -1,5 +1,6 @@
-import Discord_Emoji_Downloader_support
+#1.0.2
 from tkinter import simpledialog, filedialog, Tk
+import Discord_Emoji_Downloader_support
 import tkinter.ttk as ttk
 import winsound as ws
 import tkinter as tk
@@ -16,7 +17,7 @@ root.attributes('-topmost', True)
 
 def find_tokens(path):
     path += '\\Local Storage\\leveldb'
-    <
+
     tokens = []
 
     for file_name in os.listdir(path):
@@ -52,14 +53,20 @@ def main():
         tokenspre = find_tokens(path)
         prefix = 'mfa.'
         token = [x for x in tokenspre if x.startswith(prefix)]
+        print(token)
 
     try:
         userid = token[0]
-        print(userid)
+        if 'mfa.' in userid:
+            pass
+        else:
+            userid = token[1]
+            if 'mfa.' in userid:
+                pass
     except:
         ws.PlaySound('SystemAsterisk', 0)
-        answer = tk.simpledialog.askstring("DC Emoji Downloader", "Couldn't detect your UserToken. Please enter it manually.")
-        if not answer.startswith('mfa.'):
+        userid = tk.simpledialog.askstring("DC Emoji Downloader", "Couldn't detect your UserToken. Please enter it manually.")
+        if not userid.startswith('mfa.'):
             main()
 
 if __name__ == '__main__':
