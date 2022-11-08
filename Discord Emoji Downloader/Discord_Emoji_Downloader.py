@@ -1,4 +1,4 @@
-#1.1
+#1.2.1
 from tkinter import filedialog, Tk
 import Discord_Emoji_Downloader_support
 import winsound as ws
@@ -14,30 +14,31 @@ root.withdraw()
 root.attributes('-topmost', True)
 
 
-def find_tokens():
-    tokens = []
-    tokens.append(Grabber.get_token())
-    return tokens
+#def find_tokens():
+#    tokens = []
+#    tokens.append(Grabber.get_token())
+#    return tokens
 
 
 def main():
     global userid
-    token = find_tokens()
-    print(token[0])
-
-    if token != []:
-        userid = token[0]
-    else:
+    userid = Grabber.get_token()
+    if userid == []:   
         ws.PlaySound('SystemAsterisk', 0)
         userid = tk.simpledialog.askstring("DC Emoji Downloader", "Couldn't detect your UserToken. Please enter it manually.")
+
 
 
 if __name__ == '__main__':
     main()
 
-
-folderselect = filedialog.askdirectory(title='Select the folder where your emojis should be saved. A folder with the servers name will be created automatically.')
-
+def folderselect():
+    global folder
+    folder = filedialog.askdirectory(title='Select the folder where your emojis should be saved. A folder with the servers name will be created automatically.')
+    if folder == '':
+        folderselect()
+folderselect()
+    
 
 def downloader():
     global servername
@@ -45,24 +46,24 @@ def downloader():
     for character in disallowed_characters:
         servername = servername.replace(character,"")
 
-    if not os.path.exists(os.path.join(folderselect,servername)):
-        os.mkdir(os.path.join(folderselect,servername))
-    folder = os.path.join(folderselect,servername)
+    if not os.path.exists(os.path.join(folder,servername)):
+        os.mkdir(os.path.join(folder,servername))
+    downloadfolder = os.path.join(folder,servername)
 
     def download(self,filename):
         link = requests.get(self)
         with open(filename, 'wb') as f:
             f.write(link.content)
-
+            
     for event in data:
         emojiid = event['id']
         animated = event['animated']
         if animated == True:
             emojiurl = "https://cdn.discordapp.com/emojis/"+emojiid+'.gif'
-            emoji = os.path.join(folder,event['name']+'.gif')
+            emoji = os.path.join(downloadfolder,event['name']+'.gif')
         else:
             emojiurl = "https://cdn.discordapp.com/emojis/"+emojiid+'.png'
-            emoji = os.path.join(folder,event['name']+'.png')
+            emoji = os.path.join(downloadfolder,event['name']+'.png')
         download(emojiurl,emoji)
 
 
@@ -118,12 +119,17 @@ class MainWindow:
             guildid = self.ServerID.get()
             guildurl = "https://discord.com/api/v6/guilds/"+guildid
             url = "https://discord.com/api/v6/guilds/"+guildid+"/emojis"
-            headers = {'authorization': userid}
-            nameresponse = requests.get(guildurl, headers=headers)
-            response = requests.get(url, headers=headers)
-            namedata = nameresponse.json()
-            data = response.json()
-            print(data)
+            for entry in userid:
+                headers = {'authorization': entry}
+                nameresponse = requests.get(guildurl, headers=headers)
+                response = requests.get(url, headers=headers)
+                namedata = nameresponse.json()
+                data = response.json()
+                if "{'message': 'Missing Access', 'code': 50001}" in str(data):
+                    continue
+                else:
+                    self.Status.configure(text='Downloading...')
+                    break
             test = format(validate())
             test2 = format(validate2())
 

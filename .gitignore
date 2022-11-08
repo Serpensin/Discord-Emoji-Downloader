@@ -365,3 +365,4 @@ FodyWeavers.xsd
 /Discord Emoji Downloader/Discord_Emoji_Downloader.dist
 /Discord Emoji Downloader/Discord_Emoji_Downloader.onefile-build
 *.exe
+/Discord Emoji Downloader/env
