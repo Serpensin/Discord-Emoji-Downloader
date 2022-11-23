@@ -1,1 +1,4 @@
 requests
+httpx
+pycryptodome
+pypiwin32
