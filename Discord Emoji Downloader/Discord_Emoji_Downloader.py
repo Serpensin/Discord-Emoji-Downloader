@@ -1,4 +1,4 @@
-#1.2.1
+#1.3
 from tkinter import filedialog, Tk
 import Discord_Emoji_Downloader_support
 import winsound as ws
@@ -7,17 +7,12 @@ import requests
 import sys
 import os
 import Grabber
+import threading
 
 
 root = Tk()
 root.withdraw()
 root.attributes('-topmost', True)
-
-
-#def find_tokens():
-#    tokens = []
-#    tokens.append(Grabber.get_token())
-#    return tokens
 
 
 def main():
@@ -26,8 +21,7 @@ def main():
     if userid == []:   
         ws.PlaySound('SystemAsterisk', 0)
         userid = tk.simpledialog.askstring("DC Emoji Downloader", "Couldn't detect your UserToken. Please enter it manually.")
-
-
+       
 
 if __name__ == '__main__':
     main()
@@ -77,6 +71,7 @@ def vp_start_gui():
     root = tk.Tk()
     top = MainWindow (root)
     Discord_Emoji_Downloader_support.init(root, top)
+    
     root.mainloop()
 
 w = None
@@ -96,7 +91,7 @@ def destroy_MainWindow():
     w.destroy()
     w = None
 
-class MainWindow:
+class MainWindow():
     def __init__(self, top=None):
         def validate():
             try:
@@ -113,7 +108,7 @@ class MainWindow:
 
 
         def getID():
-            tk.messagebox.showinfo("DC Emoji Downloader", "The download will now start.\nDuring that time the window will freeze.\nJust wait until it's done.")
+            #tk.messagebox.showinfo("DC Emoji Downloader", "The download will now start.\nDuring that time the window will freeze.\nJust wait until it's done.")
             global servername
             global data
             guildid = self.ServerID.get()
@@ -132,22 +127,21 @@ class MainWindow:
                     break
             test = format(validate())
             test2 = format(validate2())
-
-
             if test != test2:
                 self.Status.configure(font="-family {Segoe UI} -size 16")
                 self.Status.configure(foreground='#e21223')
                 self.Status.configure(text="That's not a valid ServerID!")
                 return
-                            
-
             servername = namedata['name']
             downloader()
             self.Status.configure(foreground='#35bf25')
             self.Status.configure(font="-family {Segoe UI} -size 10")
             self.Status.configure(text='Downloaded all Emojis from\n'+servername)
-
-
+            
+        def thread():
+            thread = threading.Thread(target = getID)
+            thread.start()  
+            
         #'''This class configures and populates the toplevel window.
         #   top is the toplevel containing window.'''
         _bgcolor = '#d9d9d9'  # X11 color: 'gray85'
@@ -199,7 +193,7 @@ class MainWindow:
         self.Download.configure(highlightcolor="black")
         self.Download.configure(pady="0")
         self.Download.configure(text='''Download''')
-        self.Download.configure(command=getID)
+        self.Download.configure(command=thread)
 
         self.menubar = tk.Menu(top,font="TkMenuFont",bg=_bgcolor,fg=_fgcolor)
         top.configure(menu = self.menubar)
@@ -215,5 +209,7 @@ class MainWindow:
         self.Status.configure(text='Ready')
         self.Status.configure(width=270)
 
+
 if __name__ == '__main__':
     vp_start_gui()
+    
