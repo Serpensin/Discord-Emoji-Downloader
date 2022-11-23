@@ -1,2 +1,0 @@
-set /p id="Enter Version: "
-nuitka "Discord_Emoji_Downloader.py" --standalone --onefile --windows-company-name="Serpent Modding" --windows-product-name="Emoji Downloader for Discord" --windows-file-version=%id% --windows-file-description="Discord Emoji Downloader" --plugin-enable=tk-inter --windows-disable-console --remove-output --windows-icon-from-ico=C:\Users\wissm\OneDrive\Bilder\ICO\Discord.ico

@@ -1,1 +1,0 @@
-nuitka "Discord_Emoji_Downloader.py" --standalone --onefile --plugin-enable=tk-inter --windows-company-name="Serpent Modding" --windows-product-name="DEBUG" --windows-file-version=9.9.9.9 --windows-file-description="DEBUG" --windows-onefile-tempdir
