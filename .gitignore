@@ -6,4 +6,4 @@
 /Discord Emoji Downloader/env
 /Discord Emoji Downloader/__pycache__
 *.exe
-*.bat
+/Discord Emoji Downloader/build.bat
