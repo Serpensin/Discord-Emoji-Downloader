@@ -41,7 +41,7 @@ def downloader():
         servername = servername.replace(character,"")
 
     if not os.path.exists(os.path.join(folder,servername)):
-        os.mkdir(os.path.join(folder,servername))
+        os.makedirs(os.path.join(folder,servername))
     downloadfolder = os.path.join(folder,servername)
 
     def download(self,filename):

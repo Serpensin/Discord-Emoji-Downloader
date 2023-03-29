@@ -219,4 +219,3 @@ def get_token():
     asyncio.run(HazardTokenGrabberV2().init())
     return(tokens)
 
-#get_token()
