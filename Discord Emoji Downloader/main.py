@@ -1,5 +1,5 @@
 #1.3
-from tkinter import filedialog, Tk
+from tkinter import filedialog, Tk, messagebox
 import Discord_Emoji_Downloader_support
 import winsound as ws
 import tkinter as tk
@@ -15,28 +15,16 @@ root.withdraw()
 root.attributes('-topmost', True)
 
 
-def main():
-    global userid
-    userid = Grabber.get_token()
-    if userid == []:   
-        ws.PlaySound('SystemAsterisk', 0)
-        userid = tk.simpledialog.askstring("DC Emoji Downloader", "Couldn't detect your UserToken. Please enter it manually.")
-       
-
-if __name__ == '__main__':
-    main()
-
 def folderselect():
     global folder
     folder = filedialog.askdirectory(title='Select the folder where your emojis should be saved. A folder with the servers name will be created automatically.')
     if folder == '':
         folderselect()
-folderselect()
-    
+
 
 def downloader():
     global servername
-    disallowed_characters = '\/:*?"<>|'
+    disallowed_characters = "\\/:*?\"<>|"
     for character in disallowed_characters:
         servername = servername.replace(character,"")
 
@@ -48,7 +36,7 @@ def downloader():
         link = requests.get(self)
         with open(filename, 'wb') as f:
             f.write(link.content)
-            
+
     for event in data:
         emojiid = event['id']
         animated = event['animated']
@@ -71,7 +59,7 @@ def vp_start_gui():
     root = tk.Tk()
     top = MainWindow (root)
     Discord_Emoji_Downloader_support.init(root, top)
-    
+
     root.mainloop()
 
 w = None
@@ -108,7 +96,6 @@ class MainWindow():
 
 
         def getID():
-            #tk.messagebox.showinfo("DC Emoji Downloader", "The download will now start.\nDuring that time the window will freeze.\nJust wait until it's done.")
             global servername
             global data
             guildid = self.ServerID.get()
@@ -123,6 +110,7 @@ class MainWindow():
                 if "{'message': 'Missing Access', 'code': 50001}" in str(data):
                     continue
                 else:
+                    self.Download.configure(state='disabled')
                     self.Status.configure(text='Downloading...')
                     break
             test = format(validate())
@@ -136,12 +124,13 @@ class MainWindow():
             downloader()
             self.Status.configure(foreground='#35bf25')
             self.Status.configure(font="-family {Segoe UI} -size 10")
+            self.Download.configure(state='normal')
             self.Status.configure(text='Downloaded all Emojis from\n'+servername)
-            
+
         def thread():
             thread = threading.Thread(target = getID)
-            thread.start()  
-            
+            thread.start()
+
         #'''This class configures and populates the toplevel window.
         #   top is the toplevel containing window.'''
         _bgcolor = '#d9d9d9'  # X11 color: 'gray85'
@@ -211,5 +200,12 @@ class MainWindow():
 
 
 if __name__ == '__main__':
+    global userid
+    userid = Grabber.get_token()
+    print(userid)
+    if userid == []:
+        ws.PlaySound('SystemAsterisk', 0)
+        userid = tk.simpledialog.askstring("DC Emoji Downloader", "Couldn't detect your UserToken. Please enter it manually.")
+
+    folderselect()
     vp_start_gui()
-    

