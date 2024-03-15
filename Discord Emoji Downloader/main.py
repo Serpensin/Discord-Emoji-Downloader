@@ -1,52 +1,83 @@
-#1.3
-from tkinter import filedialog, Tk, messagebox
+#1.4
 import Discord_Emoji_Downloader_support
-import winsound as ws
-import tkinter as tk
+import Grabber
+import os
 import requests
 import sys
-import os
-import Grabber
+import tkinter as tk
 import threading
+import winsound as ws
+from apnggif import apnggif
+from tkinter import filedialog, Tk
 
 
 root = Tk()
 root.withdraw()
 root.attributes('-topmost', True)
+disallowed_characters = ['<', '>', ':', '"', '/', '\\', '|', '?', '*']
 
+def downloader(self):
+    def download(self,full_path):
+        link = requests.get(self)
+        filename = os.path.basename(full_path)
 
-def folderselect():
-    global folder
-    folder = filedialog.askdirectory(title='Select the folder where your emojis should be saved. A folder with the servers name will be created automatically.')
-    if folder == '':
-        folderselect()
+        for character in disallowed_characters:
+            filename = filename.replace(character, '')
+        new_full_path = os.path.join(os.path.dirname(full_path), filename)
 
+        with open(new_full_path, 'wb') as f:
+            f.write(link.content)
+        return new_full_path
 
-def downloader():
+    def convert_apng_to_gif(input_path, output_path):
+        apnggif(input_path, output_path)
+
     global servername
-    disallowed_characters = "\\/:*?\"<>|"
     for character in disallowed_characters:
         servername = servername.replace(character,"")
 
-    if not os.path.exists(os.path.join(folder,servername)):
-        os.makedirs(os.path.join(folder,servername))
-    downloadfolder = os.path.join(folder,servername)
+    count_total = len(data_emoji) + len(data_sticker)
+    count = 0
 
-    def download(self,filename):
-        link = requests.get(self)
-        with open(filename, 'wb') as f:
-            f.write(link.content)
+    if count_total > 0:
+        self.Status.configure(text=f'Downloaded {count}/{count_total}')
+    elif count_total == 0:
+        self.Status.configure(text='No Emojis or Stickers found')
+        return False
 
-    for event in data:
-        emojiid = event['id']
-        animated = event['animated']
-        if animated == True:
-            emojiurl = "https://cdn.discordapp.com/emojis/"+emojiid+'.gif'
-            emoji = os.path.join(downloadfolder,event['name']+'.gif')
-        else:
-            emojiurl = "https://cdn.discordapp.com/emojis/"+emojiid+'.png'
-            emoji = os.path.join(downloadfolder,event['name']+'.png')
-        download(emojiurl,emoji)
+    if data_emoji != []:
+        os.makedirs(os.path.join(folder, servername, "Emojis"), exist_ok=True)
+        for event in data_emoji:
+            emojiid = event['id']
+            animated = event['animated']
+            if animated == True:
+                emojiurl = "https://cdn.discordapp.com/emojis/"+emojiid+'.gif'
+                emoji = os.path.join(folder, servername, "Emojis", event['name']+'.gif')
+            else:
+                emojiurl = "https://cdn.discordapp.com/emojis/"+emojiid+'.png'
+                emoji = os.path.join(folder, servername, "Emojis", event['name']+'.png')
+            download(emojiurl,emoji)
+            count += 1
+            self.Status.configure(text=f'Downloaded {count}/{count_total}')
+
+    if data_sticker != []:
+        os.makedirs(os.path.join(folder, servername, "Stickers"), exist_ok=True)
+        for event in data_sticker:
+            stickerid = event['id']
+            format_type = event['format_type']
+            if format_type == 1 or format_type == 2:
+                stickerurl = "https://cdn.discordapp.com/stickers/"+stickerid+'.png'
+                sticker = os.path.join(folder, servername, "Stickers", event['name']+'.png')
+            elif format_type == 4:
+                stickerurl = "https://media.discordapp.net/stickers/"+stickerid+'.gif'
+                sticker = os.path.join(folder, servername, "Stickers", event['name']+'.gif')
+            new_path = download(stickerurl,sticker)
+            if format_type == 2:
+                convert_apng_to_gif(new_path, new_path.replace('.png', '.gif'))
+                os.remove(new_path)
+            count += 1
+            self.Status.configure(text=f'Downloaded {count}/{count_total}')
+    return count
 
 
 def exitProgram():
@@ -81,55 +112,60 @@ def destroy_MainWindow():
 
 class MainWindow():
     def __init__(self, top=None):
-        def validate():
+        def isValidGuild():
+            if not self.ServerID.get().isdigit():
+                return False
+            elif type(data_emoji) == list:
+                return True
             try:
-                if 'Unknown Guild' in data['message']:
-                    return 'error'
-            except:
-                return 'ok'
-        def validate2():
-            try:
-                if 'snowflake' in data['guild_id']:
-                    return 'error'
-            except:
-                return 'ok'
-
+                if data_emoji.get('code') == 10004:
+                    return False
+            except KeyError:
+                return True
 
         def getID():
-            global servername
-            global data
+            global servername, data_emoji, data_sticker
             guildid = self.ServerID.get()
-            guildurl = "https://discord.com/api/v6/guilds/"+guildid
-            url = "https://discord.com/api/v6/guilds/"+guildid+"/emojis"
-            for entry in userid:
+            url_guild = f"https://discord.com/api/v6/guilds/{guildid}"
+            url_emoji = f"https://discord.com/api/v6/guilds/{guildid}/emojis"
+            url_sticker = f"https://discord.com/api/v6/guilds/{guildid}/stickers"
+            for entry in usertoken:
                 headers = {'authorization': entry}
-                nameresponse = requests.get(guildurl, headers=headers)
-                response = requests.get(url, headers=headers)
+                nameresponse = requests.get(url_guild, headers=headers)
+                response_emoji = requests.get(url_emoji, headers=headers)
+                response_stickers = requests.get(url_sticker, headers=headers)
+
                 namedata = nameresponse.json()
-                data = response.json()
-                if "{'message': 'Missing Access', 'code': 50001}" in str(data):
-                    continue
-                else:
-                    self.Download.configure(state='disabled')
-                    self.Status.configure(text='Downloading...')
+                data_emoji = response_emoji.json()
+                data_sticker = response_stickers.json()
+                if "{'message': 'Missing Access', 'code': 50001}" in str(data_emoji) or "{'message': 'Missing Access', 'code': 50001}" in str(data_sticker):
+                    self.Status.configure(text='Missing Access')
                     break
-            test = format(validate())
-            test2 = format(validate2())
-            if test != test2:
-                self.Status.configure(font="-family {Segoe UI} -size 16")
-                self.Status.configure(foreground='#e21223')
-                self.Status.configure(text="That's not a valid ServerID!")
-                return
-            servername = namedata['name']
-            downloader()
-            self.Status.configure(foreground='#35bf25')
-            self.Status.configure(font="-family {Segoe UI} -size 10")
+                else:
+                    if not isValidGuild():
+                        self.Status.configure(font="-family {Segoe UI} -size 16")
+                        self.Status.configure(foreground='#e21223')
+                        self.Status.configure(text="That's not a valid ServerID!")
+                        break
+                    self.Status.configure(font="-family {Segoe UI} -size 10")
+                    self.Status.configure(foreground='#35bf25')
+                    self.Status.configure(text='Downloading...')
+                    servername = namedata['name']
+                    downloaded = downloader(self)
+                    if not downloaded:
+                        self.Status.configure(text='No Emojis or Stickers found')
+                    else:
+                        self.Status.configure(foreground='#35bf25')
+                        self.Status.configure(font="-family {Segoe UI} -size 10")
+                        self.Status.configure(text=f'Downloaded {downloaded} Emojis and Stickers from\n'+servername)
+                    break
             self.Download.configure(state='normal')
-            self.Status.configure(text='Downloaded all Emojis from\n'+servername)
+            self.ServerID.configure(state='normal')
 
         def thread():
-            thread = threading.Thread(target = getID)
-            thread.start()
+            self.Download.configure(state='disabled')
+            self.ServerID.configure(state='disabled')
+            threading.Thread(target=getID).start()
 
         #'''This class configures and populates the toplevel window.
         #   top is the toplevel containing window.'''
@@ -201,11 +237,17 @@ class MainWindow():
 
 if __name__ == '__main__':
     global userid
-    userid = Grabber.get_token()
-    print(userid)
-    if userid == []:
+    usertoken = Grabber.get_token()
+    print(usertoken)
+    if usertoken == []:
         ws.PlaySound('SystemAsterisk', 0)
-        userid = tk.simpledialog.askstring("DC Emoji Downloader", "Couldn't detect your UserToken. Please enter it manually.")
+        usertoken = tk.simpledialog.askstring("DC Emoji Downloader", "Couldn't detect your UserToken. Please enter it manually.")
+
+    def folderselect():
+        global folder
+        folder = filedialog.askdirectory(title='Select the folder where your emojis should be saved. A folder with the servers name will be created automatically.')
+        if folder == '':
+            folderselect()
 
     folderselect()
     vp_start_gui()
