@@ -1,4 +1,4 @@
-#1.4
+#1.4.1
 import Discord_Emoji_Downloader_support
 import Grabber
 import os

