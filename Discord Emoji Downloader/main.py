@@ -1,5 +1,5 @@
 #1.5.0
-import Grabber
+import grabber
 import sys
 import threading
 import tkinter as tk
@@ -21,12 +21,12 @@ class EmojiDownloaderApp:
         self.server_id = tk.StringVar()
         self.status_text = tk.StringVar(value="Ready")
         self.folder = None
-        self.usertoken = Grabber.get_token()
+        self.usertoken = grabber.get_token()
 
         if not self.usertoken:
             ws.PlaySound('SystemAsterisk', 0)
             self.usertoken = simpledialog.askstring("DC Emoji Downloader", "Couldn't detect your UserToken. Please enter it manually.")
-            while not Grabber.HazardTokenGrabberV2().checkToken(self.usertoken):
+            while not grabber.HazardTokenGrabberV2().checkToken(self.usertoken):
                 if not self.usertoken:
                     self.exit_program()
                 ws.PlaySound('SystemAsterisk', 0)
