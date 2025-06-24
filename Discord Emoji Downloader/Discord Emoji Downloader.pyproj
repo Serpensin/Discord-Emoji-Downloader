@@ -11,7 +11,7 @@
     <OutputPath>.</OutputPath>
     <Name>Discord Emoji Downloader</Name>
     <RootNamespace>Discord Emoji Downloader</RootNamespace>
-    <InterpreterId>MSBuild|EmojiDownloader|$(MSBuildProjectFullPath)</InterpreterId>
+    <InterpreterId>MSBuild|env|$(MSBuildProjectFullPath)</InterpreterId>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
     <DebugSymbols>true</DebugSymbols>
@@ -27,14 +27,13 @@
     <Compile Include="main.py" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="build.bat" />
     <Content Include="requirements.txt" />
   </ItemGroup>
   <ItemGroup>
-    <Interpreter Include="H:\venvs\EmojiDownloader\">
-      <Id>EmojiDownloader</Id>
-      <Version>0.0</Version>
-      <Description>EmojiDownloader (Python 3.12 (64-bit))</Description>
+    <Interpreter Include="env\">
+      <Id>env</Id>
+      <Version>3.12</Version>
+      <Description>env (Python 3.12 (64-bit))</Description>
       <InterpreterPath>Scripts\python.exe</InterpreterPath>
       <WindowsInterpreterPath>Scripts\pythonw.exe</WindowsInterpreterPath>
       <PathEnvironmentVariable>PYTHONPATH</PathEnvironmentVariable>
