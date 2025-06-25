@@ -36,7 +36,6 @@ class EmojiDownloaderApp:
             self.usertoken = [self.usertoken]
         elif self.accounts['unique'] == 1:
             self.usertoken = self.accounts['accounts'].values()[0]['token']
-            print(f"Using token: {self.usertoken[0]}")
         else:
             def select_account(parent, accounts: dict):
                 selection = {"token": None}
@@ -80,7 +79,6 @@ class EmojiDownloaderApp:
                 self.exit_program()
             self.usertoken = [chosen]
         
-        print(self.usertoken)
         self.create_widgets()
         self.select_folder()
         self.root.after(100, lambda: self.root.focus_force())
