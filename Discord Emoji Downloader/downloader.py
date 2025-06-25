@@ -1,6 +1,6 @@
+import imageio
 import os
 import requests
-import imageio
 from PIL import Image
 
 DISALLOWED_CHARACTERS = ['<', '>', ':', '"', '/', '\\', '|', '?', '*']

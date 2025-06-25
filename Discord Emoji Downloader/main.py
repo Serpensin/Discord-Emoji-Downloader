@@ -36,7 +36,7 @@ class EmojiDownloaderApp:
         print(self.usertoken)
         self.create_widgets()
         self.select_folder()
-        
+        self.root.after(100, lambda: self.root.focus_force())
 
     def create_widgets(self):
         tk.Label(self.root, text="Discord Server ID:", fg="white", bg="#36393f").place(relx=0.1, rely=0.2)
