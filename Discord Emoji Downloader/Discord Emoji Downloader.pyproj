@@ -27,6 +27,10 @@
     <Compile Include="main.py" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="assets\icon.ico" />
+    <Content Include="assets\icon.png" />
+    <Content Include="assets\Splash-Screen.png" />
+    <Content Include="build.bat" />
     <Content Include="requirements.txt" />
   </ItemGroup>
   <ItemGroup>
@@ -39,6 +43,9 @@
       <PathEnvironmentVariable>PYTHONPATH</PathEnvironmentVariable>
       <Architecture>X64</Architecture>
     </Interpreter>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="assets\" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\Python Tools\Microsoft.PythonTools.targets" />
   <!-- Uncomment the CoreCompile target to enable the Build command in

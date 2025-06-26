@@ -63,7 +63,7 @@ class EmojiDownloaderApp:
                 os.unlink(splash_filename)
 
         self.clear_frame()
-        self.root.iconphoto(False, PhotoImage(file="assets/icon.png"))
+        self.root.iconphoto(False, PhotoImage(file=get_resource_path(os.path.join("assets", "icon.png"))))
         if self.accounts['unique'] < 1:
             ws.PlaySound('SystemAsterisk', 0)
             self.show_token_input("Couldn't detect your UserToken. Please enter it manually.")
@@ -282,6 +282,12 @@ def center_window(window, width, height):
     x = (screen_width - width) // 2
     y = (screen_height - height) // 2
     window.geometry(f"{width}x{height}+{x}+{y}")
+
+def get_resource_path(filename: str):
+    if getattr(sys, 'frozen', False):
+        return os.path.join(sys._MEIPASS, filename)
+    else:
+        return os.path.join(os.path.dirname(__file__), filename)
 
 def main():
     root = tk.Tk()
