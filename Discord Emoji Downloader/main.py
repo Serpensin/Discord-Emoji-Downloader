@@ -1,4 +1,4 @@
-#2.0.0
+#2.0.1
 import grabber
 import os
 import sys
@@ -62,7 +62,7 @@ class EmojiDownloaderApp:
             if os.path.exists(splash_filename):
                 os.unlink(splash_filename)
 
-        self.clear_frame()
+        self.root.deiconify()
         self.root.iconphoto(False, PhotoImage(file=get_resource_path(os.path.join("assets", "icon.png"))))
         if self.accounts['unique'] < 1:
             ws.PlaySound('SystemAsterisk', 0)
@@ -129,6 +129,7 @@ class EmojiDownloaderApp:
                 - Sets the user token for the selected account.
                 - Proceeds to the main UI.
         """
+        self.clear_frame()
         tk.Label(self.content_frame, text="Please choose your Discord account:", fg="white", bg="#36393f").pack(pady=(25, 5))
         options = [f"{data['display_name']} ({uid})" for uid, data in accounts.items()]
         combo = ttk.Combobox(self.content_frame, values=options, state="readonly", width=45)
@@ -168,7 +169,7 @@ class EmojiDownloaderApp:
         self.select_folder()
         if not self.folder:
             self.exit_program()
-        self.root.deiconify()
+        self.clear_frame()
 
         tk.Label(self.content_frame, text="Discord Server ID:", fg="white", bg="#36393f").place(relx=0.1, rely=0.2)
         tk.Entry(self.content_frame, textvariable=self.server_id).place(relx=0.5, rely=0.2)
